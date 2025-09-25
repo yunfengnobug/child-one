@@ -13,22 +13,7 @@ export function setupMicroAppRouter(router: Router) {
   if (!window.__MICRO_APP_ENVIRONMENT__) {
     return
   }
-
-  /**
-   * 自动检测路由模式
-   */
-  function detectRouteMode(): 'history' | 'hash' {
-    const history = router.options.history
-    if (history && typeof history === 'object') {
-      const historyType = history.constructor.name
-      if (historyType.includes('Hash') || historyType.includes('hash')) {
-        return 'hash'
-      }
-    }
-    return 'history'
-  }
-
-  const routeMode = detectRouteMode()
+  console.log('当前是微前端环境')
 
   /**
    * 标准化路由路径
@@ -53,22 +38,24 @@ export function setupMicroAppRouter(router: Router) {
 
       // 检查路由是否存在
       const matchedRoute = router.resolve(normalizedRoute)
+      console.log('matchedRoute', matchedRoute)
       if (matchedRoute && matchedRoute.name !== 'NotFound') {
         // 检查是否需要跳转
         const currentPath = router.currentRoute.value.path
         if (currentPath !== normalizedRoute) {
           router.push(normalizedRoute).catch(() => {
-            // 忽略路由跳转错误
+            // 静默处理路由跳转失败
           })
         }
       }
     } catch (error) {
-      // 忽略路由处理错误
+      // 静默处理路由处理错误
     }
   }
 
   // 设置路由监听器
   window.microApp?.addDataListener((data: any) => {
+    console.log('data', data)
     if (data.targetRoute && typeof data.targetRoute === 'string') {
       navigateToRoute(data.targetRoute)
     }
