@@ -6,14 +6,12 @@ import type { Router } from 'vue-router'
 
 /**
  * 统一的微前端路由处理函数
- * 自动检测并适配 history 和 hash 路由模式
  */
 export function setupMicroAppRouter(router: Router) {
   // 只在微前端环境中运行
   if (!window.__MICRO_APP_ENVIRONMENT__) {
     return
   }
-  console.log('当前是微前端环境')
 
   /**
    * 标准化路由路径
@@ -38,7 +36,6 @@ export function setupMicroAppRouter(router: Router) {
 
       // 检查路由是否存在
       const matchedRoute = router.resolve(normalizedRoute)
-      console.log('matchedRoute', matchedRoute)
       if (matchedRoute && matchedRoute.name !== 'NotFound') {
         // 检查是否需要跳转
         const currentPath = router.currentRoute.value.path
@@ -55,7 +52,6 @@ export function setupMicroAppRouter(router: Router) {
 
   // 设置路由监听器
   window.microApp?.addDataListener((data: any) => {
-    console.log('data', data)
     if (data.targetRoute && typeof data.targetRoute === 'string') {
       navigateToRoute(data.targetRoute)
     }
