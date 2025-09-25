@@ -15,6 +15,4 @@ app.use(Antd)
 app.mount('#app')
 
 // 使用统一的微前端路由处理器（自动检测路由模式）
-setupMicroAppRouter(router, {
-  debug: import.meta.env.DEV, // 开发环境下启用调试日志
-})
+setupMicroAppRouter(router)

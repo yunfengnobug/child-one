@@ -4,20 +4,13 @@
  */
 import type { Router } from 'vue-router'
 
-export interface MicroAppRouterOptions {
-  debug?: boolean
-}
-
 /**
  * 统一的微前端路由处理函数
  * 自动检测并适配 history 和 hash 路由模式
  */
-export function setupMicroAppRouter(router: Router, options: MicroAppRouterOptions = {}) {
-  const { debug = false } = options
-
+export function setupMicroAppRouter(router: Router) {
   // 只在微前端环境中运行
   if (!window.__MICRO_APP_ENVIRONMENT__) {
-    if (debug) console.log('[MicroAppRouter] 非微前端环境，跳过路由监听')
     return
   }
 
@@ -36,7 +29,6 @@ export function setupMicroAppRouter(router: Router, options: MicroAppRouterOptio
   }
 
   const routeMode = detectRouteMode()
-  if (debug) console.log('[MicroAppRouter] 检测到路由模式:', routeMode)
 
   /**
    * 标准化路由路径
@@ -65,31 +57,19 @@ export function setupMicroAppRouter(router: Router, options: MicroAppRouterOptio
         // 检查是否需要跳转
         const currentPath = router.currentRoute.value.path
         if (currentPath !== normalizedRoute) {
-          if (debug) {
-            console.log('[MicroAppRouter] 执行路由跳转', {
-              from: currentPath,
-              to: normalizedRoute,
-            })
-          }
-
-          router.push(normalizedRoute).catch((error) => {
-            if (debug) console.error('[MicroAppRouter] 路由跳转失败', error)
+          router.push(normalizedRoute).catch(() => {
+            // 忽略路由跳转错误
           })
-        } else {
-          if (debug) console.log('[MicroAppRouter] 路由相同，跳过跳转')
         }
-      } else {
-        if (debug) console.warn('[MicroAppRouter] 路由不存在:', normalizedRoute)
       }
     } catch (error) {
-      if (debug) console.error('[MicroAppRouter] 路由处理出错', error)
+      // 忽略路由处理错误
     }
   }
 
   // 设置路由监听器
   window.microApp?.addDataListener((data: any) => {
     if (data.targetRoute && typeof data.targetRoute === 'string') {
-      if (debug) console.log('[MicroAppRouter] 接收到路由跳转请求:', data.targetRoute)
       navigateToRoute(data.targetRoute)
     }
   })
@@ -97,11 +77,8 @@ export function setupMicroAppRouter(router: Router, options: MicroAppRouterOptio
   // 处理初始路由
   const initialData = window.microApp?.getData()
   if (initialData?.targetRoute) {
-    if (debug) console.log('[MicroAppRouter] 处理初始路由:', initialData.targetRoute)
     navigateToRoute(initialData.targetRoute)
   }
-
-  if (debug) console.log('[MicroAppRouter] 路由处理器初始化完成')
 }
 
 /**
